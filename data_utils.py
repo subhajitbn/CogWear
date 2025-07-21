@@ -34,11 +34,11 @@ def create_dataset(X, y, step, time_steps):
 
 # cogWear pilot data processing
 
-def cogwear_pilot_load_participant(ppath, i, device='empatica', sampling_frequency=64):
+def cogwear_pilot_load_participant(ppath, i, device='empatica', physioparam="bvp", sampling_frequency=64):
     sec2 = sampling_frequency * 2  # remove 2 seconds from start and end of the experimental condition
-    clT = pd.read_csv('{0}/{1}/cognitive_load/{2}_bvp.csv'.format(ppath, i, device))
-    baseT = pd.read_csv('{0}/{1}/baseline/{2}_bvp.csv'.format(ppath, i, device))
-    return clT.bvp.values[sec2:-sec2], baseT.bvp.values[sec2:-sec2]
+    clT = pd.read_csv('{0}/{1}/cognitive_load/{2}_{3}.csv'.format(ppath, i, device, physioparam))
+    baseT = pd.read_csv('{0}/{1}/baseline/{2}_{3}.csv'.format(ppath, i, device, physioparam))
+    return clT[physioparam].values[sec2:-sec2], baseT[physioparam].values[sec2:-sec2]
 
 
 def cogwear_pilot_prepare_participant_data(cl, base, step, window, train):
@@ -51,10 +51,10 @@ def cogwear_pilot_prepare_participant_data(cl, base, step, window, train):
     return x, y
 
 
-def cogwear_pilot_load_dataset(ppath, indicies, step, window, device, sampling, train=True):
+def cogwear_pilot_load_dataset(ppath, indicies, step, window, device, physioparam, sampling, train=True):
     X, Y = [], []
     for i in indicies:
-        cl, base = cogwear_pilot_load_participant(ppath, i, device, sampling)
+        cl, base = cogwear_pilot_load_participant(ppath, i, device, physioparam, sampling)
         x, y = cogwear_pilot_prepare_participant_data(cl, base, step, window, train)
         X.append(x)
         Y.append(y)
