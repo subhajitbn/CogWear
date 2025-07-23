@@ -5,7 +5,7 @@ from scipy.signal import resample
 
 def load_device_signals(participant_id, data_root="pilot", device="empatica", physioparam="bvp", condition="baseline"):
     """
-    Loads BVP (downsampled to 4 Hz), EDA, and TEMP signals for a single participant and condition.
+    Loads BVP signals for a single participant and condition.
     
     Args:
         participant_id (str or int): Participant folder name
@@ -20,25 +20,15 @@ def load_device_signals(participant_id, data_root="pilot", device="empatica", ph
 
     pid = str(participant_id)
     base_path = os.path.join(data_root, pid, condition)
-    
-    for device in devices:
-        device_path = os.path.join(base_path, device)
-        if os.path.exists(device_path):
-            if device == "empatica":
-                ebvp = pd.read_csv(os.path.join(device_path, "empatica_bvp.csv"))["bvp"].values
-                # Trim 2 sec at start & end from BVP to match EDA/TEMP preprocessing
-                sec_remove = 2
-                ebvp = ebvp[64 * sec_remove : -64 * sec_remove]  # 64 Hz
-            elif device == "samsung":
-                sbvp = pd.read_csv(os.path.join(device_path, "samsung_bvp.csv"))["bvp"].values
-            elif device == "muse":
-                eeg = pd.read_csv(os.path.join(device_path, "muse_eeg.csv"))
-            else:
-                raise FileNotFoundError(f"Device folder '{device_path}' not found for participant {pid}.")
 
+    
+    ebvp = pd.read_csv(os.path.join(base_path, "empatica_bvp.csv"))["bvp"].values
+    # Trim 2 sec at start & end from BVP to match EDA/TEMP preprocessing
+    sec_remove = 2
+    ebvp = ebvp[64 * sec_remove : -64 * sec_remove]  # 64 Hz
 
     return {
-        "bvp": bvp
+        "bvp": ebvp
     }
 
 
